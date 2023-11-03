@@ -3,6 +3,7 @@ package main
 import (
 	"crypto/tls"
 	"crypto/x509"
+	"flag"
 	"log"
 	"os"
 	"os/signal"
@@ -13,14 +14,12 @@ import (
 	"github.com/skeeey/mochimqtt/pkg/server/broker"
 )
 
-const (
-	serverCertPath = "/Users/liuwei/go/src/github.com/skeeey/mochimqtt/hack/server.pem"
-	serverKeyPath  = "/Users/liuwei/go/src/github.com/skeeey/mochimqtt/hack/server-key.pem"
-
-	caPath = "/Users/liuwei/go/src/github.com/skeeey/mochimqtt/hack/root-ca.pem"
-)
-
 func main() {
+	serverCertPath := flag.String("server-cert-path", "/mochi-mqtt/server.pem", "The server cert path")
+	serverKeyPath := flag.String("server-key-path", "/mochi-mqtt/server-key.pem", "The server key path")
+	caPath := flag.String("ca-path", "/mochi-mqtt/root-ca.pem", "The ca path")
+	flag.Parse()
+
 	sigs := make(chan os.Signal, 1)
 	done := make(chan bool, 1)
 	signal.Notify(sigs, syscall.SIGINT, syscall.SIGTERM)
@@ -29,12 +28,12 @@ func main() {
 		done <- true
 	}()
 
-	serverCertPemBlock, err := os.ReadFile(serverCertPath)
+	serverCertPemBlock, err := os.ReadFile(*serverCertPath)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	serverKeyPemBlock, err := os.ReadFile(serverKeyPath)
+	serverKeyPemBlock, err := os.ReadFile(*serverKeyPath)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -45,21 +44,12 @@ func main() {
 	}
 
 	certPool := x509.NewCertPool()
-	caPem, err := os.ReadFile(caPath)
+	caPem, err := os.ReadFile(*caPath)
 	if err != nil {
 		log.Fatal(err)
 	}
 
 	if !certPool.AppendCertsFromPEM(caPem) {
-		log.Fatal("failed to append client ca")
-	}
-
-	clientCAPem, err := os.ReadFile(caPath)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	if !certPool.AppendCertsFromPEM(clientCAPem) {
 		log.Fatal("failed to append client ca")
 	}
 

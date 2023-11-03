@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: mochi-mqtt
+  name:  mochi-mqtt
+spec:
+  type: ClusterIP
+  ports:
+  - name: mqtt
+    port: 8883
+    protocol: TCP
+    targetPort: 8883
+  selector:
+    app: mochi-mqtt

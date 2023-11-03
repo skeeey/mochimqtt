@@ -1,0 +1,23 @@
+
+# Adds namespace to all resources.
+namespace:  mochi-mqtt
+
+resources:
+- ./namespace.yaml
+- ./deployment.yaml
+- ./service.yaml
+- ./route.yaml
+
+images:
+- name: quay.io/skeeey/mochi-mqtt:latest
+  newName: quay.io/skeeey/mochi-mqtt
+  newTag: latest
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+secretGenerator:
+- name: mochi-mqtt-certs
+  files:
+  - root-ca.pem
+  - server.pem
+  - server-key.pem

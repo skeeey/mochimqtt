@@ -4,6 +4,7 @@ genswaggertypedocs
 *.dll
 *.so
 *.dylib
+bin
 
 # Test binary, build with `go test -c`
 *.test
@@ -16,6 +17,7 @@ genswaggertypedocs
 .idea/
 _output/
 
+# intermediate files
 *.pem
 *.json
 *.csr

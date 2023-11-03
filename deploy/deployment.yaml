@@ -1,0 +1,41 @@
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  name: mochi-mqtt
+  labels:
+    app: mochi-mqtt
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mochi-mqtt
+  template:
+    metadata:
+      labels:
+        app: mochi-mqtt
+    spec:
+      containers:
+      - name: mochi-mqtt
+        image: quay.io/skeeey/mochi-mqtt:latest
+        imagePullPolicy: IfNotPresent
+        args:
+          - "/server"
+        securityContext:
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop:
+              - ALL
+          privileged: false
+          runAsNonRoot: true
+        ports:
+        - containerPort: 8883
+          name: mqtt
+          protocol: TCP
+        volumeMounts:
+        - name: mochi-mqtt-certs
+          mountPath: "/mochi-mqtt"
+          readOnly: true
+      volumes:
+      - name: mochi-mqtt-certs
+        secret:
+          secretName: mochi-mqtt-certs
