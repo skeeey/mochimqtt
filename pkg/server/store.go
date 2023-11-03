@@ -57,6 +57,8 @@ func (s *memoryStore) UpdateStatus(resource *Resource) error {
 
 	last.Status = resource.Status
 	s.resources[resource.ResourceID] = last
+
+	fmt.Printf("update resource %s/%s status\n", resource.Namespace, resource.ResourceID)
 	return nil
 }
 

@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
       - name: mochi-mqtt
-        image: quay.io/skeeey/mochi-mqtt:latest
+        image: quay.io/skeeey/mochimqtt:latest
         imagePullPolicy: IfNotPresent
         args:
           - "/server"
@@ -27,6 +27,8 @@ spec:
               - ALL
           privileged: false
           runAsNonRoot: true
+          seccompProfile:
+            type: RuntimeDefault
         ports:
         - containerPort: 8883
           name: mqtt

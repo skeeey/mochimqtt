@@ -3,40 +3,48 @@ package main
 import (
 	"context"
 	"log"
-	"os"
-	"os/signal"
-	"syscall"
+
+	"k8s.io/klog/v2"
 
 	"open-cluster-management.io/api/cloudevents/generic/options/mqtt"
-	"open-cluster-management.io/api/test/integration/cloudevents/source"
+
+	"github.com/skeeey/mochimqtt/pkg/server"
+	"github.com/skeeey/mochimqtt/pkg/signal"
 )
 
 const (
-	clientCertFile = "/Users/liuwei/go/src/github.com/skeeey/mochimqtt/hack/client.pem"
-	clientKeyFile  = "/Users/liuwei/go/src/github.com/skeeey/mochimqtt/hack/client-key.pem"
+	host = "mochi-mqtt-mochi-mqtt.apps.server-foundation-sno-r8b9r.dev04.red-chesterfield.com:443"
 
-	serverCAFile = "/Users/liuwei/go/src/github.com/skeeey/mochimqtt/hack/root-ca.pem"
+	serverCAFile = "/home/cloud-user/go/src/github.com/skeeey/mochimqtt/hack/certs/root-ca.pem"
+
+	clientCertFile = "/home/cloud-user/go/src/github.com/skeeey/mochimqtt/hack/certs/source/client.pem"
+	clientKeyFile  = "/home/cloud-user/go/src/github.com/skeeey/mochimqtt/hack/certs/source/client-key.pem"
 )
 
 func main() {
-	sigs := make(chan os.Signal, 1)
-	done := make(chan bool, 1)
-	signal.Notify(sigs, syscall.SIGINT, syscall.SIGTERM)
+	shutdownCtx, cancel := context.WithCancel(context.TODO())
+	shutdownHandler := signal.SetupSignalHandler()
 	go func() {
-		<-sigs
-		done <- true
+		defer cancel()
+		<-shutdownHandler
+		klog.Infof("\nReceived SIGTERM or SIGINT signal, shutting down controller.\n")
 	}()
 
+	ctx, terminate := context.WithCancel(shutdownCtx)
+	defer terminate()
+
+	server.GetStore().Add(server.NewResource("cluster1", "resource1"))
+
 	mqttOptions := mqtt.NewMQTTOptions()
-	mqttOptions.BrokerHost = "127.0.0.1:8883"
+	mqttOptions.BrokerHost = host
 	mqttOptions.CAFile = serverCAFile
 	mqttOptions.ClientCertFile = clientCertFile
 	mqttOptions.ClientKeyFile = clientKeyFile
 
-	_, err := source.StartResourceSourceClient(context.TODO(), mqttOptions)
+	_, err := server.StartResourceSourceClient(ctx, mqttOptions)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	<-done
+	<-ctx.Done()
 }

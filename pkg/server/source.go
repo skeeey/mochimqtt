@@ -109,7 +109,7 @@ func (resLister *resourceLister) List(listOpts types.ListOptions) ([]*Resource, 
 func StartResourceSourceClient(ctx context.Context, config *mqtt.MQTTOptions) (generic.CloudEventsClient[*Resource], error) {
 	client, err := generic.NewCloudEventSourceClient[*Resource](
 		ctx,
-		mqtt.NewSourceOptions(config, "integration-test"),
+		mqtt.NewSourceOptions(config, "maestro"),
 		&resourceLister{},
 		func(obj *Resource) (string, error) {
 			statusBytes, err := json.Marshal(&workv1.ManifestWorkStatus{Conditions: obj.Status.Conditions})

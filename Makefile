@@ -15,3 +15,9 @@ build:
 .PHONY: image
 image:
 	docker build -t ${IMG} .
+
+## deploy
+.PHONY: deploy
+deploy:
+	hack/certs.sh
+	kubectl apply -k deploy

@@ -9,8 +9,8 @@ resources:
 - ./route.yaml
 
 images:
-- name: quay.io/skeeey/mochi-mqtt:latest
-  newName: quay.io/skeeey/mochi-mqtt
+- name: quay.io/skeeey/mochimqtt:latest
+  newName: quay.io/skeeey/mochimqtt
   newTag: latest
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization

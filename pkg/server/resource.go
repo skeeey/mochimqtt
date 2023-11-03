@@ -7,7 +7,7 @@ import (
 
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
-	kubetypes "k8s.io/apimachinery/pkg/types"
+	"k8s.io/apimachinery/pkg/types"
 
 	"open-cluster-management.io/api/cloudevents/generic"
 )
@@ -45,8 +45,8 @@ func NewResource(namespace, name string) *Resource {
 	}
 }
 
-func (r *Resource) GetUID() kubetypes.UID {
-	return kubetypes.UID(r.ResourceID)
+func (r *Resource) GetUID() types.UID {
+	return types.UID(r.ResourceID)
 }
 
 func (r *Resource) GetResourceVersion() string {
