@@ -10,7 +10,7 @@ require (
 	k8s.io/apimachinery v0.26.1
 	k8s.io/client-go v0.26.1
 	k8s.io/klog/v2 v2.80.1
-	open-cluster-management.io/api v0.12.0
+	open-cluster-management.io/api v0.12.1-0.20231109164634-c10ed7e097aa
 )
 
 require (
@@ -58,7 +58,3 @@ require (
 	sigs.k8s.io/structured-merge-diff/v4 v4.2.3 // indirect
 	sigs.k8s.io/yaml v1.3.0 // indirect
 )
-
-replace github.com/mochi-mqtt/server/v2 => /home/cloud-user/go/src/github.com/mochi-mqtt/server
-
-replace open-cluster-management.io/api => /home/cloud-user/go/src/github.com/open-cluster-management-io/api
