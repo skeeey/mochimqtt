@@ -2,6 +2,10 @@ package main
 
 import (
 	"context"
+	"flag"
+	"fmt"
+	"path"
+	"time"
 
 	"k8s.io/klog/v2"
 	"open-cluster-management.io/api/cloudevents/generic/options/mqtt"
@@ -13,15 +17,19 @@ import (
 )
 
 const (
-	serverCAFile = "/home/cloud-user/go/src/github.com/skeeey/mochimqtt/hack/certs/root-ca.pem"
-	host         = "mochi-mqtt-mochi-mqtt.apps.server-foundation-sno-r8b9r.dev04.red-chesterfield.com:443"
+	certPath = "/home/cloud-user/go/src/github.com/skeeey/mochimqtt/hack/certs"
 
-	clusterName    = "cluster1"
-	clientCertFile = "/home/cloud-user/go/src/github.com/skeeey/mochimqtt/hack/certs/cluster1/client.pem"
-	clientKeyFile  = "/home/cloud-user/go/src/github.com/skeeey/mochimqtt/hack/certs/cluster1/client-key.pem"
+	startIndex = 1
+	counts     = 1000
 )
 
 func main() {
+	caPath := flag.String("ca-path", path.Join(certPath, "root-ca.pem"), "The ca path")
+	clientCertPath := flag.String("client-cert-path", path.Join(certPath, "cluster1", "client.pem"), "The client cert path")
+	clientKeyPath := flag.String("client-key-path", path.Join(certPath, "cluster1", "client-key.pem"), "The client key path")
+	host := flag.String("host", "mochi-mqtt-mochi-mqtt.apps.server-foundation-sno-r8b9r.dev04.red-chesterfield.com:443", "The mqtt host")
+	flag.Parse()
+
 	shutdownCtx, cancel := context.WithCancel(context.TODO())
 	shutdownHandler := signal.SetupSignalHandler()
 	go func() {
@@ -33,11 +41,24 @@ func main() {
 	ctx, terminate := context.WithCancel(shutdownCtx)
 	defer terminate()
 
+	for i := startIndex; i <= counts; i++ {
+		go startAgent(ctx, *caPath, *clientCertPath, *clientKeyPath, *host, fmt.Sprintf("cluster%d", i))
+
+		if i%10 == 0 {
+			time.Sleep(5 * time.Second)
+		}
+	}
+
+	<-ctx.Done()
+}
+
+func startAgent(ctx context.Context, caPath, clientCertPath, clientKeyPath, host, clusterName string) {
 	mqttOptions := mqtt.NewMQTTOptions()
 	mqttOptions.BrokerHost = host
-	mqttOptions.CAFile = serverCAFile
-	mqttOptions.ClientCertFile = clientCertFile
-	mqttOptions.ClientKeyFile = clientKeyFile
+	mqttOptions.CAFile = caPath
+	mqttOptions.ClientCertFile = clientCertPath
+	mqttOptions.ClientKeyFile = clientKeyPath
+	mqttOptions.KeepAlive = 10
 
 	clientHolder, err := work.NewClientHolderBuilder(clusterName, mqttOptions).
 		WithClusterName(clusterName).
@@ -53,6 +74,4 @@ func main() {
 
 	go informer.Run(ctx.Done())
 	go controller.Run(1, ctx.Done())
-
-	<-ctx.Done()
 }

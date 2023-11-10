@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"log"
 
 	"k8s.io/klog/v2"
@@ -33,8 +34,14 @@ func main() {
 	ctx, terminate := context.WithCancel(shutdownCtx)
 	defer terminate()
 
-	server.GetStore().Add(server.NewResource("cluster1", "resource1"))
+	for i := 1; i < 1000; i++ {
+		server.GetStore().Add(server.NewResource(fmt.Sprintf("cluster%d", i), "resource1"))
+	}
 
+	<-ctx.Done()
+}
+
+func startSource(ctx context.Context) {
 	mqttOptions := mqtt.NewMQTTOptions()
 	mqttOptions.BrokerHost = host
 	mqttOptions.CAFile = serverCAFile
@@ -45,6 +52,4 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-
-	<-ctx.Done()
 }

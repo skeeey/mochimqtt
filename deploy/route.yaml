@@ -3,6 +3,14 @@ kind: Route
 metadata:
   labels:
     app: mochi-mqtt
+  annotations:
+    haproxy.router.openshift.io/disable_cookies: 'true'
+    haproxy.router.openshift.io/balance: leastconn
+    haproxy.router.openshift.io/rate-limit-connections: 'false'
+    haproxy.router.openshift.io/rate-limit-connections.rate-tcp: '20000'
+    haproxy.router.openshift.io/rate-limit-connections.concurrent-tcp: '20000'
+    haproxy.router.openshift.io/timeout: 90s
+    haproxy.router.openshift.io/timeout-tunnel: 6h
   name: mochi-mqtt
 spec:
   port:

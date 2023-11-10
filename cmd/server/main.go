@@ -60,6 +60,13 @@ func main() {
 	}
 
 	server := mqtt.New(nil)
+
+	// level := new(slog.LevelVar)
+	// server.Log = slog.New(slog.NewTextHandler(os.Stdout, &slog.HandlerOptions{
+	// 	Level: level,
+	// }))
+	// level.Set(slog.LevelDebug)
+
 	_ = server.AddHook(new(broker.CertAuthHook), nil)
 
 	tcp := listeners.NewTCP("mqtt-tls", ":8883", &listeners.Config{
